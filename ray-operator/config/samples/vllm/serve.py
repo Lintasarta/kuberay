@@ -105,8 +105,9 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     """  # noqa: E501
     parsed_args = parse_vllm_args(cli_args)
     engine_args = AsyncEngineArgs.from_cli_args(parsed_args)
-    engine_args.worker_use_ray = True
+    # engine_args.worker_use_ray = True
     engine_args.ray_workers_use_nsight= True
+    engine_args.trust_remote_code = True
 
     return VLLMDeployment.bind(
         engine_args,
@@ -116,4 +117,4 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
 
 
 model = build_app(
-    {"model": os.environ['MODEL_ID'], "tensor-parallel-size": os.environ['TENSOR_PARALLELISM'], "pipeline-parallel-size": os.environ['PIPELINE_PARALLELISM'],"trust-remote-code": True})
+    {"model": os.environ['MODEL_ID'], "tensor-parallel-size": os.environ['TENSOR_PARALLELISM'], "pipeline-parallel-size": os.environ['PIPELINE_PARALLELISM']})
