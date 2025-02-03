@@ -12,7 +12,8 @@ from ray import serve
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.entrypoints.openai.cli_args import make_arg_parser
-from vllm.entrypoints.openai.serving_engine import LoRAModulePath, PromptAdapterPath, BaseModelPath
+# from vllm.entrypoints.openai.serving_engine import LoRAModulePath, PromptAdapterPath, BaseModelPath
+from vllm.entrypoints.openai.serving_models import LoRAModulePath, PromptAdapterPath, BaseModelPath
 from vllm.entrypoints.logger import RequestLogger
 from vllm.entrypoints.openai.protocol import (
     ChatCompletionRequest,
@@ -145,7 +146,7 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     # engine_args.worker_use_ray = True
     # engine_args.ray_workers_use_nsight= True
     engine_args.trust_remote_code = True
-    engine_args.worker_use_ray = True
+    # engine_args.worker_use_ray = True
     engine_args.distributed_executor_backend = "ray"
     engine_args.gpu_memory_utilization = 0.97
     # engine_args.quantization = "fp8"
