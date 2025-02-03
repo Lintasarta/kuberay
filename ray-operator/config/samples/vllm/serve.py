@@ -22,6 +22,7 @@ from vllm.entrypoints.openai.protocol import (
 from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.utils import FlexibleArgumentParser
 
+import time
 logger = logging.getLogger("ray.serve")
 
 app = FastAPI()
@@ -49,6 +50,26 @@ class VLLMDeployment:
         self.chat_template = chat_template
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
+    @app.get("/health")
+    async def health_check():
+        """Health check endpoint."""
+        return JSONResponse(content={"status": "online"})
+
+    @app.get("/v1/models")
+    async def get_openai_models(
+        url_idx: Optional[int] = None,
+    ):
+        return {
+            "data": [
+                {
+                    "id": os.environ['MODEL_ID'],
+                    "object": "model",
+                    "created": int(time.time()),
+                    "owned_by": "lintasarta",
+                }
+            ],
+            "object": "list",
+    }
     @app.post("/v1/chat/completions")
     async def create_chat_completion(
         self, request: ChatCompletionRequest, raw_request: Request
@@ -75,7 +96,7 @@ class VLLMDeployment:
                 request_logger=self.request_logger,
                 chat_template=self.chat_template,
                 chat_template_content_format="auto",
-                
+
             )
         logger.info(f"Request: {request}")
         generator = await self.openai_serving_chat.create_chat_completion(
