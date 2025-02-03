@@ -85,12 +85,13 @@ class VLLMDeployment:
             if self.engine_args.served_model_name is not None:
                 served_model_names = self.engine_args.served_model_name
             else:
-                served_model_names = [self.engine_args.model]
+                served_model_names = self.engine_args.model
             self.openai_serving_chat = OpenAIServingChat(
                 self.engine,
                 model_config,
-                served_model_names,
-                self.response_role,
+                base_model_paths=[{"name":served_model_names,
+                                   "model_path":served_model_names}],
+                response_role=self.response_role,
                 lora_modules=self.lora_modules,
                 prompt_adapters=self.prompt_adapters,
                 request_logger=self.request_logger,
