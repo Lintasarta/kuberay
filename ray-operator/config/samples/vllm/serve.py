@@ -51,13 +51,13 @@ class VLLMDeployment:
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
     @app.get("/health")
-    async def health_check():
+    async def health_check(self):
         """Health check endpoint."""
         return JSONResponse(content={"status": "online"})
 
     @app.get("/v1/models")
     async def get_openai_models(
-        url_idx: Optional[int] = None,
+        self,url_idx: Optional[int] = None,
     ):
         return {
             "data": [
