@@ -12,6 +12,8 @@ from ray import serve
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.entrypoints.openai.cli_args import make_arg_parser
+from vllm.entrypoints.openai.serving_engine import LoRAModulePath, PromptAdapterPath
+from vllm.entrypoints.logger import RequestLogger
 from vllm.entrypoints.openai.protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -32,12 +34,18 @@ class VLLMDeployment:
         self,
         engine_args: AsyncEngineArgs,
         response_role: str,
+        lora_modules: Optional[List[LoRAModulePath]] = None,
+        prompt_adapters: Optional[List[PromptAdapterPath]] = None,
+        request_logger: Optional[RequestLogger] = None,
         chat_template: Optional[str] = None,
     ):
         logger.info(f"Starting with engine args: {engine_args}")
         self.openai_serving_chat = None
         self.engine_args = engine_args
         self.response_role = response_role
+        self.lora_modules = lora_modules
+        self.prompt_adapters = prompt_adapters
+        self.request_logger = request_logger
         self.chat_template = chat_template
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
@@ -61,7 +69,10 @@ class VLLMDeployment:
                 self.engine,
                 model_config,
                 served_model_names,
-                response_role=self.response_role,
+                self.response_role,
+                lora_modules=self.lora_modules,
+                prompt_adapters=self.prompt_adapters,
+                request_logger=self.request_logger,
                 chat_template=self.chat_template,
             )
         logger.info(f"Request: {request}")
@@ -116,6 +127,9 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     return VLLMDeployment.bind(
         engine_args,
         parsed_args.response_role,
+        parsed_args.lora_modules,
+        parsed_args.prompt_adapters,
+        cli_args.get("request_logger"),
         parsed_args.chat_template,
     )
 
