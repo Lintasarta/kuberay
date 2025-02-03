@@ -13,7 +13,7 @@ from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.entrypoints.openai.cli_args import make_arg_parser
 # from vllm.entrypoints.openai.serving_engine import LoRAModulePath, PromptAdapterPath, BaseModelPath
-from vllm.entrypoints.openai.serving_models import LoRAModulePath, PromptAdapterPath, BaseModelPath
+from vllm.entrypoints.openai.serving_models import LoRAModulePath, PromptAdapterPath, OpenAIServingModels, BaseModelPath
 from vllm.entrypoints.logger import RequestLogger
 from vllm.entrypoints.openai.protocol import (
     ChatCompletionRequest,
@@ -87,16 +87,16 @@ class VLLMDeployment:
                 served_model_names = self.engine_args.served_model_name
             else:
                 served_model_names = self.engine_args.model
+            
             self.openai_serving_chat = OpenAIServingChat(
                 self.engine,
                 model_config,
-                base_model_paths=[BaseModelPath(
-                    name=served_model_names,
-                    model_path=served_model_names
-                )],
+                OpenAIServingModels(self.engine,model_config,
+                                    BaseModelPath(name=served_model_names,model_path=served_model_names),
+                                    lora_modules=self.lora_modules,
+                                    prompt_adapters=self.prompt_adapters),
                 response_role=self.response_role,
-                lora_modules=self.lora_modules,
-                prompt_adapters=self.prompt_adapters,
+                enable_reasoning=True,
                 request_logger=self.request_logger,
                 chat_template=self.chat_template,
                 chat_template_content_format="auto",
