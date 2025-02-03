@@ -113,7 +113,20 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     engine_args.gpu_memory_utilization = 0.97
     # engine_args.quantization = "fp8"
 
-    return VLLMDeployment.bind(
+    if "accelerator" in cli_args.keys():
+        accelerator = cli_args.pop("accelerator")
+    else:
+        accelerator = "GPU"
+    tp = engine_args.tensor_parallel_size
+    logger.info(f"Tensor parallelism = {tp}")
+    pg_resources = []
+    pg_resources.append({"CPU": 1})  # for the deployment replica
+    for i in range(tp):
+        pg_resources.append({"CPU": 1, accelerator: 1})  # for the vLLM actors
+
+    return VLLMDeployment.options(
+        placement_group_bundles=pg_resources, placement_group_strategy="STRICT_PACK"
+    ).bind(
         engine_args,
         parsed_args.response_role,
         parsed_args.chat_template,
