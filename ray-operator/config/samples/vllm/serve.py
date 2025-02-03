@@ -108,6 +108,7 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     # engine_args.worker_use_ray = True
     # engine_args.ray_workers_use_nsight= True
     engine_args.trust_remote_code = True
+    engine_args.worker_use_ray = True
     # engine_args.quantization = "fp8"
 
     return VLLMDeployment.bind(
