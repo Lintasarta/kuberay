@@ -92,7 +92,7 @@ class VLLMDeployment:
                 self.engine,
                 model_config,
                 OpenAIServingModels(self.engine,model_config,
-                                    BaseModelPath(name=served_model_names,model_path=served_model_names),
+                                    [BaseModelPath(name=served_model_names,model_path=served_model_names)],
                                     lora_modules=self.lora_modules,
                                     prompt_adapters=self.prompt_adapters),
                 response_role=self.response_role,
