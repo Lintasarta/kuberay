@@ -149,7 +149,8 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     engine_args.trust_remote_code = True
     # engine_args.worker_use_ray = True
     engine_args.distributed_executor_backend = "ray"
-    engine_args.gpu_memory_utilization = 0.97
+    engine_args.gpu_memory_utilization = 0.95
+    engine_args.enforce_eager = True
     # engine_args.quantization = "fp8"
 
     return VLLMDeployment.bind(
